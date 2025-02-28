@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import cookieParser from "cookie-parser";
 import {v2 as cloudinary} from "cloudinary"
 import path from "path"
+import { fileURLToPath } from "url";
 
 import authRoutes from "./routes/auth.route.js";
 import userRoutes from "./routes/user.route.js";
@@ -21,7 +22,7 @@ cloudinary.config({
 })
 const app = express();
 const PORT = process.env.PORT || 5000;
-const __dirname = path.resolve()
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 app.use(express.json({limit: "10mb"}));  //to parse json object to javascript object
 app.use(express.urlencoded({extended: true})); // tp parse form data(url encoded)
@@ -34,12 +35,14 @@ app.use("/api/posts", postRoutes)
 app.use("/api/notifications", notificationRoutes) 
 
 //what ever the route other than aboves just navigate user to the react application
-if(process.env.NODE_ENV === "production") {
+if (process.env.NODE_ENV === "production") {
     app.use(express.static(path.join(__dirname, "../frontend/dist")));
+
     app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "frontend", "dist", "index.html"));
-    })
+        res.sendFile(path.resolve(__dirname, "../frontend/dist/index.html"));
+    });
 }
+
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
